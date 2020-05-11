@@ -1,0 +1,30 @@
+
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+# http:
+#   base_url: example.duckdns.org:8123
+
+demo:
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+device_tracker:
+  - platform: tile
+    username: iuri.aranda@gmail.com
+    password: !secret tile_password
+
+spotify:
+  client_id: !secret spotify_client_id
+  client_secret: !secret spotify_client_secret
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+group: !include groups.yaml
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
