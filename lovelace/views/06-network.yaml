@@ -1,0 +1,100 @@
+title: Network
+path: network
+icon: mdi:server-network
+panel: true
+cards:
+  - type: custom:layout-card
+    cards:
+      - type: vertical-stack
+        mode: vertical
+        cards:
+          - type: entities
+            title: Wifi
+            icon: mdi:wifi
+            entities:
+              - entity: sensor.network_in_wlan0
+                icon: mdi:download
+              - entity: sensor.network_out_wlan0
+                icon: mdi:upload
+              - entity: sensor.ipv4_address_wlan0
+                icon: mdi:ip-network
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: Throughput IN
+                icon: mdi:download-network
+                line_width: 2
+                decimals: 0
+                hour24: true
+                entities:
+                  - sensor.network_throughput_in_wlan0
+              - type: custom:mini-graph-card
+                name: Throughput OUT
+                icon: mdi:upload-network
+                line_width: 2
+                decimals: 0
+                hour24: true
+                entities:
+                  - sensor.network_throughput_out_wlan0
+      - type: vertical-stack
+        cards:
+          - type: entities
+            title: Ethernet
+            icon: mdi:server-network
+            entities:
+              - entity: sensor.network_in_eth0
+                icon: mdi:download
+              - entity: sensor.network_out_eth0
+                icon: mdi:upload
+              - entity: sensor.ipv4_address_eth0
+                icon: mdi:ip-network
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: Throughput IN
+                icon: mdi:download-network
+                decimals: 0
+                line_width: 2
+                hour24: true
+                entities:
+                  - sensor.network_throughput_in_eth0
+              - type: custom:mini-graph-card
+                name: Throughput OUT
+                icon: mdi:upload-network
+                decimals: 0
+                line_width: 2
+                hour24: true
+                entities:
+                  - sensor.network_throughput_out_eth0
+      - type: vertical-stack
+        cards:
+          - type: button
+            name: Speed test
+            tap_action:
+              action: call-service
+              service: speedtestdotnet.speedtest
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: Download speed
+                icon: mdi:download-network
+                decimals: 0
+                line_width: 2
+                hour24: true
+                entities:
+                  - sensor.speedtest_download
+              - type: custom:mini-graph-card
+                name: Upload speed
+                icon: mdi:upload-network
+                decimals: 0
+                line_width: 2
+                hour24: true
+                entities:
+                  - sensor.speedtest_upload
+              - type: custom:mini-graph-card
+                name: Ping
+                decimals: 0
+                line_width: 2
+                hour24: true
+                entities:
+                  - sensor.speedtest_ping

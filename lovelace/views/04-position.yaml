@@ -1,0 +1,29 @@
+title: Position
+path: position
+icon: mdi:crosshairs-gps
+panel: true
+cards:
+  - type: custom:layout-card
+    cards:
+      - entities:
+          - attribute: latitude
+            entity: zone.home
+            icon: nil
+            name: Latitude
+            suffix: º
+            type: attribute
+          - attribute: longitude
+            entity: zone.home
+            icon: nil
+            name: Longitude
+            suffix: º
+            type: attribute
+        icon: 'mdi:crosshairs-gps'
+        show_header_toggle: false
+        title: Position
+        type: entities
+      - dark_mode: false
+        entities:
+          - entity: zone.home
+        hours_to_show: 0
+        type: map

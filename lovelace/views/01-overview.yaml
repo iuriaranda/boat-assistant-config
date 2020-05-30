@@ -1,0 +1,130 @@
+title: Overview
+path: overview
+icon: mdi:view-dashboard
+panel: true
+cards:
+  - type: custom:layout-card
+    cards:
+      - type: custom:bar-card
+        positions:
+          name: off
+          value: inside
+          indicator: outside
+          minmax: inside
+        entities:
+          - name: Diesel tank level
+            entity: sensor.disk_use_percent
+            icon: mdi:gas-station
+            unit_of_measurement: L
+            max: 100
+            min: 0
+            severity:
+              - color: red
+                from: 0
+                to: 30
+              - color: orange
+                from: 30
+                to: 50
+              - color: green
+                from: 50
+                to: 100
+          - name: Water tank level
+            entity: sensor.memory_use_percent
+            unit_of_measurement: L
+            max: 200
+            min: 0
+            icon: mdi:water
+            severity:
+              - color: red
+                from: 0
+                to: 30
+              - color: orange
+                from: 30
+                to: 50
+              - color: green
+                from: 50
+                to: 200
+          - name: Battery level
+            entity: sensor.processor_use
+            unit_of_measurement: '%'
+            max: 100
+            min: 0
+            icon: mdi:battery-60
+            severity:
+              - color: red
+                from: 0
+                to: 50
+              - color: orange
+                from: 50
+                to: 70
+              - color: green
+                from: 70
+                to: 100
+      - type: horizontal-stack
+        cards:
+          - type: custom:mini-graph-card
+            icon: mdi:battery-60
+            align_icon: state
+            decimals: 1
+            entities:
+              - sensor.battery_draw
+            hours_to_show: 1
+            points_per_hour: 60
+            show:
+              average: true
+              extrema: true
+            name_adaptive_color: true
+            line_width: 3
+            hour24: true
+            color_thresholds_transition: hard
+            color_thresholds:
+              - value: -3
+                color: red
+              - value: -1
+                color: orange
+              - value: 0
+                color: green
+      - title:
+        type: entities
+        state_color: true
+        entities:
+          - entity: sensor.multi_sensor_aft_temp
+            name: Main saloon
+            type: custom:multiple-entity-row
+            state_header: Temp.
+            entities:
+              - name: Humidity
+                entity: sensor.multi_sensor_aft_humidity
+          - entity: sensor.multi_sensor_forward_temp
+            name: Forward cabin
+            type: custom:multiple-entity-row
+            state_header: Temp.
+            entities:
+              - name: Humidity
+                entity: sensor.multi_sensor_forward_humidity
+          - entity: sensor.multi_sensor_aft_temp
+            name: Aft cabin
+            type: custom:multiple-entity-row
+            state_header: Temp.
+            entities:
+              - name: Humidity
+                entity: sensor.multi_sensor_aft_humidity
+          - entity: sensor.multi_sensor_aft_temp
+            name: Engine room
+            type: custom:multiple-entity-row
+            state_header: Temp.
+            entities:
+              - name: Humidity
+                entity: sensor.multi_sensor_aft_humidity
+          - entity: sensor.multi_sensor_aft_temp
+            name: Outside
+            type: custom:multiple-entity-row
+            state_header: Temp.
+            entities:
+              - name: Humidity
+                entity: sensor.multi_sensor_aft_humidity
+        footer:
+          type: graph
+          entity: sensor.multi_sensor_forward_temp
+          hours_to_show: 24
+          detail: 1

@@ -1,18 +1,36 @@
-# Example .gitignore file for your config dir.
-# An * ensures that everything will be ignored.
-*
+# Ignore most .files
+.*
+!/.gitignore
+!.HA_VERSION
 
-# You can whitelist files/folders with !, these will not be ignored.
-!*.yaml
-!.gitignore
-!*.md
+# Scripts
+*.sh
 
-# Ignore folders.
-.storage
-.cloud
-.google.token
+# Folders
+custom_components/
+deps/
+downloads/
+glances/
+node-red/
+themes/
+tts/
+www/community/
+www/custom_ui/
 
-# Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
+# Log, DB, dump
+home-assistant.log
+home-assistant_v2.db*
+core
+
+# Discovered devices
+harmony_*.conf
+known_devices.yaml
+emulated_hue_ids.json
+
+# Secrets
 ip_bans.yaml
 secrets.yaml
-known_devices.yaml
+
+# Ignore appdaemon folder, except apps.yaml
+appdaemon/
+!appdaemon/apps/apps.yaml

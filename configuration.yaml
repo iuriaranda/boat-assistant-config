@@ -3,10 +3,19 @@
 default_config:
 
 # Uncomment this if you are using SSL/TLS, running in Docker container, etc.
-# http:
-#   base_url: example.duckdns.org:8123
+http:
+  base_url: ceoulmara.local:8123
 
-demo:
+lovelace:
+  mode: yaml
+  resources: !include lovelace/resources.yaml
+  dashboards:
+    lovelace-ceoulmara:
+      mode: yaml
+      filename: lovelace-ceoulmara.yaml
+      title: Ceoulmara
+      icon: mdi:sailing
+      show_in_sidebar: true
 
 # Text to speech
 tts:
@@ -17,12 +26,71 @@ device_tracker:
     username: iuri.aranda@gmail.com
     password: !secret tile_password
 
+speedtestdotnet:
+  scan_interval:
+    minutes: 120
+
 spotify:
   client_id: !secret spotify_client_id
   client_secret: !secret spotify_client_secret
 
 frontend:
   themes: !include_dir_merge_named themes
+
+shell_command:
+  screen_standby: "ssh -i /config/screen_auto -o 'StrictHostKeyChecking=no' pi@127.0.0.1 -- bang"
+
+panel_iframe:
+  raspap:
+    title: 'RaspAP'
+    url: 'http://ceoulmara.local:8080'
+    icon: mdi:router-wireless-settings
+  
+sensor:
+  - platform: systemmonitor
+    resources:
+      - type: disk_use_percent
+        arg: "/"
+      - type: memory_use_percent
+      - type: processor_use
+      - type: load_1m
+      - type: load_5m
+      - type: load_15m
+      - type: network_in
+        arg: eth0
+      - type: network_out
+        arg: eth0
+      - type: throughput_network_in
+        arg: eth0
+      - type: throughput_network_out
+        arg: eth0
+      - type: ipv4_address
+        arg: eth0
+      - type: ipv6_address
+        arg: eth0
+      - type: network_in
+        arg: wlan0
+      - type: network_out
+        arg: wlan0
+      - type: throughput_network_in
+        arg: wlan0
+      - type: throughput_network_out
+        arg: wlan0
+      - type: ipv4_address
+        arg: wlan0
+      - type: ipv6_address
+        arg: wlan0
+      - type: last_boot
+  - platform: uptime
+    unit_of_measurement: hours
+  - platform: rpi_power
+    text_state: true
+  - platform: dummy_battery_draw
+  - platform: command_line
+    name: CPU Temperature
+    command: "cat /sys/class/thermal/thermal_zone0/temp"
+    unit_of_measurement: "°C"
+    value_template: '{{ value | multiply(0.001) | round(1) }}'
 
 group: !include groups.yaml
 automation: !include automations.yaml

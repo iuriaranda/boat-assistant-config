@@ -1,0 +1,17 @@
+title: Weather
+path: weather
+icon: mdi:weather-partly-cloudy
+cards:
+  - type: weather-forecast
+    entity: weather.ceoulmara
+    show_forecast: true
+  - type: custom:mini-graph-card
+    name: Pressure
+    entities:
+      - sensor.multi_sensor_aft_pressure
+    hours_to_show: 48
+    points_per_hour: 1
+    show:
+      extrema: true
+    line_width: 3
+    hour24: true

@@ -1,0 +1,15 @@
+custom_header:
+  compact_mode: true
+  hidden_tab_redirect: false
+  hide_config: true
+  hide_help: true
+  hide_unused: false
+title: Ceoulmara
+icon: mdi:sailing
+views:
+  - !include lovelace/views/01-overview.yaml
+  - !include lovelace/views/02-weather.yaml
+  - !include lovelace/views/03-valves.yaml
+  - !include lovelace/views/04-position.yaml
+  - !include lovelace/views/05-system.yaml
+  - !include lovelace/views/06-network.yaml

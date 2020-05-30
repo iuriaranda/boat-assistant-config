@@ -1,0 +1,60 @@
+title: System
+path: system
+icon: mdi:server
+panel: true
+cards:
+  - type: custom:layout-card
+    cards:
+      - type: vertical-stack
+        mode: vertical
+        cards:
+          - type: horizontal-stack
+            cards:
+              - type: custom:mini-graph-card
+                name: CPU use
+                icon: mdi:chip
+                line_width: 2
+                decimals: 1
+                hour24: true
+                entities:
+                  - sensor.processor_use
+                name_adaptive_color: true
+              - type: custom:mini-graph-card
+                hour24: true
+                line_width: 2
+                entities:
+                  - sensor.cpu_temperature
+          - type: custom:bar-card
+            entities:
+              - entity: sensor.memory_use_percent
+                name: Memory use
+                severity:
+                  - color: red
+                    from: '80'
+                    to: '100'
+              - entity: sensor.disk_use_percent
+                name: Disk use
+                severity:
+                  - color: red
+                    from: '80'
+                    to: '100'
+          - type: entities
+            entities:
+              - entity: sensor.uptime
+              - entity: sensor.rpi_power_status
+              - type: custom:paper-buttons-row
+                buttons:
+                  - name: Screen standby
+                    tap_action:
+                      action: call-service
+                      service: shell_command.screen_standby
+                    icon: mdi:sleep
+      - type: custom:auto-entities
+        card:
+          type: entities
+          title: Battery levels
+        filter:
+          include:
+            - entity_id: "sensor.multi_sensor_*_battery_level"
+              options:
+                secondary_info: last-changed
