@@ -1,10 +1,8 @@
-
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
-# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
-http:
-  base_url: ceoulmara.local:8123
+homeassistant:
+  internal_url: ceoulmara.local:8123
 
 lovelace:
   mode: yaml
@@ -84,7 +82,7 @@ sensor:
     name: CPU Temperature
     command: "cat /sys/class/thermal/thermal_zone0/temp"
     unit_of_measurement: "°C"
-    value_template: '{{ value | multiply(0.001) | round(1) }}'
+    value_template: "{{ value | multiply(0.001) | round(1) }}"
 
 group: !include groups.yaml
 automation: !include automations.yaml
