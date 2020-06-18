@@ -40,12 +40,6 @@ frontend:
 shell_command:
   screen_standby: "ssh -i /config/ha_display_off -o 'StrictHostKeyChecking=no' pi@127.0.0.1 -- bang"
 
-panel_iframe:
-  raspap:
-    title: 'RaspAP'
-    url: 'http://ceoulmara.local'
-    icon: mdi:router-wireless-settings
-  
 sensor:
   - platform: systemmonitor
     resources:
