@@ -1,0 +1,85 @@
+---
+- name: Base setup
+  hosts: pi
+  remote_user: pi
+  become: yes
+  vars:
+    HOSTNAME: "ceoulmara"
+    LOCALE: "en_US.UTF-8"
+    TIMEZONE: "Europe/Madrid"
+    XKBLAYOUT: "es" #default "gb"
+    WIFI_COUNTRY: "ES"
+
+  tasks:
+    - name: apt dist-upgrade
+      apt:
+        update_cache: yes
+        upgrade: dist
+      notify:
+        - reboot
+
+    - name: Get hostname
+      shell: "raspi-config nonint get_hostname"
+      register: pi_hostname
+      changed_when: False
+    - name: Change hostname
+      shell: "raspi-config nonint do_hostname {{ HOSTNAME }}"
+      when: pi_hostname.stdout != HOSTNAME
+      notify:
+        - reboot
+
+    - name: Get current locale
+      lineinfile:
+        dest: /etc/default/locale
+        line: "LANG={{ LOCALE }}"
+      check_mode: yes
+      register: current_locale
+    - name: Change locale
+      shell: "raspi-config nonint do_change_locale {{ LOCALE }}"
+      when: current_locale.changed
+
+    - name: Get current timezone
+      lineinfile:
+        dest: /etc/timezone
+        line: "{{ TIMEZONE }}"
+      check_mode: yes
+      register: current_timezone
+    - name: Change timezone
+      shell: "raspi-config nonint do_change_timezone {{ TIMEZONE }}"
+      when: current_timezone.changed
+
+    - name: Get current keyboard
+      lineinfile:
+        dest: /etc/default/keyboard
+        line: 'XKBLAYOUT="{{ XKBLAYOUT }}"'
+      check_mode: yes
+      register: current_keyboard
+    - name: Change keyboard layout
+      shell: "raspi-config nonint do_configure_keyboard {{ XKBLAYOUT }}"
+      when: current_keyboard.changed
+
+    - name: Get WiFi country
+      shell: "raspi-config nonint get_wifi_country"
+      register: wifi_country
+      changed_when: False
+      ignore_errors: True # this only works the first time before uap0 is created
+    - name: Set WiFi country
+      shell: "raspi-config nonint do_wifi_country {{ WIFI_COUNTRY }}"
+      when: wifi_country.stdout != WIFI_COUNTRY
+      ignore_errors: True # this only works the first time before uap0 is created
+
+    # Do this until this issue is resolved https://github.com/raspberrypi/linux/issues/2453
+    # and the firmware is officially released
+    - name: Install patched wifi firmware
+      copy:
+        src: ./files/lib/firmware/brcm/
+        dest: /lib/firmware/brcm/
+      notify:
+        - reboot
+
+    - meta: flush_handlers
+
+  handlers:
+    - name: reboot
+      reboot:
+      listen: reboot
