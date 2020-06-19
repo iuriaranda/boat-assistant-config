@@ -49,6 +49,6 @@ Inspiration and code was taken from many different sources:
 
 And special thanks to my friend Philip for his help and suggestions, and for the inspiration from his [Home Assitant configuration](https://github.com/duboisph/home-assistant-config).
 
-## License
+## License
 
 The code is available under the [MIT license](https://github.com/duboisph/home-assistant-config/blob/master/LICENSE).
