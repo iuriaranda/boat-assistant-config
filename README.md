@@ -2,6 +2,8 @@
 
 This repository contains the configuration and software for the automation setup aboard my sailboat. The whole setup is based on [Home Assistant](https://www.home-assistant.io/) running on a Raspberry Pi 4B.
 
+This project is still experimental and a work in progress.
+
 ## Goals
 
 The goals of this project are:
