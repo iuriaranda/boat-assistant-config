@@ -1,0 +1,20 @@
+{
+  "name": "RaspAP",
+  "version": "1",
+  "slug": "raspap",
+  "description": "RaspAP panel",
+  "arch": [
+    "armhf",
+    "armv7",
+    "aarch64",
+    "amd64",
+    "i386"
+  ],
+  "startup": "before",
+  "boot": "auto",
+  "options": {},
+  "schema": {},
+  "ingress": true,
+  "ingress_entry": "/",
+  "panel_icon": "mdi:router-wireless-settings"
+}

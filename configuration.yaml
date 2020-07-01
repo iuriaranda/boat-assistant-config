@@ -1,10 +1,8 @@
-
 # Configure a default setup of Home Assistant (frontend, api, etc)
 default_config:
 
-# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
-http:
-  base_url: ceoulmara.local:8123
+homeassistant:
+  internal_url: ceoulmara.local:8123
 
 lovelace:
   mode: yaml
@@ -40,12 +38,6 @@ frontend:
 shell_command:
   screen_standby: "ssh -i /config/ha_display_off -o 'StrictHostKeyChecking=no' pi@127.0.0.1 -- bang"
 
-panel_iframe:
-  raspap:
-    title: 'RaspAP'
-    url: 'http://ceoulmara.local'
-    icon: mdi:router-wireless-settings
-  
 sensor:
   - platform: systemmonitor
     resources:
@@ -90,7 +82,7 @@ sensor:
     name: CPU Temperature
     command: "cat /sys/class/thermal/thermal_zone0/temp"
     unit_of_measurement: "°C"
-    value_template: '{{ value | multiply(0.001) | round(1) }}'
+    value_template: "{{ value | multiply(0.001) | round(1) }}"
 
 group: !include groups.yaml
 automation: !include automations.yaml

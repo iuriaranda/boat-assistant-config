@@ -1,0 +1,7 @@
+---
+- import_playbook: 01_base_setup.yaml
+- import_playbook: 02_raspap.yaml
+- import_playbook: 03_docker.yaml
+- import_playbook: 04_hass.yaml
+# - import_playbook: 05_signalk.yaml
+- import_playbook: 06_kiosk.yaml

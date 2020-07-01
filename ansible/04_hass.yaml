@@ -1,0 +1,60 @@
+---
+- name: Home assistant supervised setup
+  hosts: pi
+  remote_user: pi
+  become: yes
+  vars:
+    # snapshot_file_path: path/to/a/snapshot/file/in/your/system
+
+  tasks:
+    - name: Install apt dependencies
+      apt:
+        pkg:
+          - jq
+          - avahi-daemon
+          - dbus
+
+    - name: Install Home Assistant
+      shell: "curl -sL https://raw.githubusercontent.com/home-assistant/supervised-installer/master/installer.sh | bash -s -- -m raspberrypi4"
+      args:
+        creates: /usr/share/hassio/homeassistant
+
+    - name: Restore snapshot
+      copy:
+        src: "{{ snapshot_file_path }}"
+        dest: /usr/share/hassio/backup/
+      when: snapshot_file_path is defined
+      notify: restore_snapshot
+
+    - name: Link homeassistant config folder to pi's home folder
+      file:
+        src: /usr/share/hassio/homeassistant
+        dest: /home/pi/homeassistant
+        owner: pi
+        group: pi
+        state: link
+
+    - name: Generate SSH key pair for HA
+      openssh_keypair:
+        path: /home/pi/.ssh/ha_display_off
+        owner: pi
+        group: pi
+      register: ha_key_display_off
+
+    - name: Copy ssh key to HA config folder
+      copy:
+        remote_src: yes
+        src: /home/pi/.ssh/ha_display_off
+        dest: /usr/share/hassio/homeassistant/
+        mode: 0600
+
+    - name: Add HA SSH key
+      authorized_key:
+        user: pi
+        state: present
+        key: "{{ ha_key_display_off.public_key }}"
+        key_options: command="xset -display :0 dpms force off",from="127.0.0.1",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty
+
+  handlers:
+    - name: restore_snapshot
+      shell: ha snapshot reload && ha snapshot restore

@@ -1,0 +1,260 @@
+---
+- name: Setup RaspAP
+  hosts: pi
+  remote_user: pi
+  become: yes
+  tasks:
+    - name: Install apt packages
+      apt:
+        pkg:
+          - lighttpd
+          - git
+          - hostapd
+          - dnsmasq
+          - iptables-persistent
+          - vnstat
+          - qrencode
+          - php7.3-cgi
+
+    - name: Enable lighttpd mod fastcgi-php
+      command: lighttpd-enable-mod fastcgi-php
+      notify: restart lighttpd
+      ignore_errors: True # when mod is already enabled
+
+    - name: Bind lighttpd to hassio network
+      lineinfile:
+        path: /etc/lighttpd/lighttpd.conf
+        regexp: "^server.bind"
+        line: server.bind = "172.30.32.1"
+
+    - name: Bind lighttpd to AP network
+      lineinfile:
+        path: /etc/lighttpd/lighttpd.conf
+        line: $SERVER["socket"] == "192.168.50.1:80" {}
+
+    - name: Start lighttpd after hassio-supervisor and hostapd
+      lineinfile:
+        path: /lib/systemd/system/lighttpd.service
+        line: After=hassio-supervisor.service hostapd.service
+        insertafter: '^\[Unit\]$'
+      notify:
+        - systemd daemon reload
+
+    - meta: flush_handlers
+
+    - name: Prepare RaspAP html dir
+      command:
+        cmd: rm -rf /var/www/html
+        creates: /var/www/html/.git
+        warn: false
+
+    - name: Clone RaspAP Git repo
+      git:
+        repo: "https://github.com/billz/raspap-webgui"
+        dest: /var/www/html
+        update: no
+
+    - name: Set correct permissions on RaspAP directory
+      file:
+        path: /var/www/html
+        state: directory
+        owner: www-data
+        group: www-data
+        recurse: yes
+
+    - name: Setup RaspAP sudoers config
+      copy:
+        remote_src: yes
+        src: /var/www/html/installers/raspap.sudoers
+        dest: /etc/sudoers.d/090_raspap
+        owner: root
+        group: root
+
+    - name: Create RaspAP config directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: 0775
+      with_items:
+        - /etc/raspap/
+        - /etc/raspap/backups
+        - /etc/raspap/adblock
+        - /etc/raspap/networking
+        - /etc/raspap/hostapd
+        - /etc/raspap/lighttpd
+
+    - name: Copy RaspAP initialization script
+      copy:
+        remote_src: yes
+        src: /var/www/html/raspap.php
+        dest: /etc/raspap/raspap.php
+        owner: www-data
+        group: www-data
+
+    - name: Find installer scripts
+      find:
+        paths: /var/www/html/installers/
+        patterns:
+          - "*log.sh"
+          - "service*.sh"
+      register: installers
+
+    - name: Copy installer scripts
+      copy:
+        remote_src: yes
+        src: "{{ item.path }}"
+        dest: /etc/raspap/hostapd/
+        owner: root
+        group: www-data
+        mode: 0750
+      with_items: "{{ installers.files }}"
+
+    - name: Copy lighttpd configuration script
+      copy:
+        remote_src: yes
+        src: /var/www/html/installers/configport.sh
+        dest: /etc/raspap/lighttpd/
+        owner: root
+        group: www-data
+        mode: 0750
+
+    - name: Copy RaspAP config files
+      copy:
+        src: ./files/etc/raspap/
+        dest: /etc/raspap/
+        owner: www-data
+        group: www-data
+
+    - name: Copy Hostapd config files
+      copy:
+        src: ./files/etc/hostapd/
+        dest: /etc/hostapd/
+        owner: root
+        group: root
+        force: no # Don't override changes (e.g. AP password)
+
+    - name: Copy DNSmasq config files
+      copy:
+        src: ./files/etc/dnsmasq.d/
+        dest: /etc/dnsmasq.d/
+        owner: root
+        group: root
+
+    - name: Copy DHCpcd config files
+      copy:
+        src: ./files/etc/dhcpcd.conf
+        dest: /etc/dhcpcd.conf
+        owner: root
+        group: root
+
+    - name: Copy RaspAP config file
+      copy:
+        remote_src: yes
+        src: /var/www/html/config/config.php
+        dest: /var/www/html/includes/
+        force: no # Content might have been updated
+
+    - name: Bypass RaspAP authentication for Hassio
+      lineinfile:
+        dest: /var/www/html/includes/authenticate.php
+        line: $validated = $validated || (ip2long('172.30.32.1') <= ip2long($_SERVER['REMOTE_ADDR']) && ip2long($_SERVER['REMOTE_ADDR']) <= ip2long('172.30.33.255'));
+        insertafter: '^\$validated = \(\$user'
+
+    # Configure ADblock
+    - name: Download adblock hostnames definitions
+      get_url:
+        url: https://raw.githubusercontent.com/notracking/hosts-blocklists/master/hostnames.txt
+        dest: /etc/raspap/adblock/hostnames.txt
+        owner: root
+        group: www-data
+
+    - name: Download adblock domains definitions
+      get_url:
+        url: https://raw.githubusercontent.com/notracking/hosts-blocklists/master/domains.txt
+        dest: /etc/raspap/adblock/domains.txt
+        owner: root
+        group: www-data
+
+    - name: Copy adblock config script
+      copy:
+        remote_src: yes
+        src: /var/www/html/installers/update_blocklist.sh
+        dest: /etc/raspap/adblock/update_blocklist.sh
+        mode: 0750
+        owner: root
+        group: www-data
+
+    - name: Enable adblock
+      lineinfile:
+        path: /var/www/html/includes/config.php
+        regexp: RASPI_ADBLOCK_ENABLED
+        line: define('RASPI_ADBLOCK_ENABLED', true);
+
+    - name: Setup wlan1 as wifi client
+      lineinfile:
+        path: /var/www/html/includes/config.php
+        regexp: RASPI_WIFI_CLIENT_INTERFACE
+        line: define('RASPI_WIFI_CLIENT_INTERFACE', 'wlan1');
+
+    - name: Setup RaspAP systemd file
+      copy:
+        remote_src: yes
+        src: /var/www/html/installers/raspapd.service
+        dest: /lib/systemd/system/
+        owner: root
+        group: root
+      notify:
+        - systemd daemon reload
+
+    - meta: flush_handlers
+
+    - name: Enable RaspAP service
+      systemd:
+        name: raspapd
+        enabled: yes
+        masked: no
+
+    - name: Disable networkd service
+      systemd:
+        name: systemd-networkd
+        enabled: no
+        state: stopped
+
+    - name: Enable ip forward
+      sysctl:
+        name: net.ipv4.ip_forward
+        value: "1"
+        sysctl_set: yes
+        state: present
+        reload: yes
+
+    - name: Setup iptables
+      iptables:
+        table: nat
+        chain: POSTROUTING
+        jump: MASQUERADE
+        source: 192.168.50.0/24
+        destination: "!192.168.50.0/24"
+      notify:
+        - save iptables
+
+    - name: Enable and start hostapd service
+      systemd:
+        name: hostapd
+        enabled: yes
+        masked: no
+
+    - meta: flush_handlers
+
+  handlers:
+    - name: restart lighttpd
+      service:
+        name: lighttpd
+        state: restarted
+    - name: systemd daemon reload
+      systemd:
+        daemon_reload: yes
+    - name: save iptables
+      shell: iptables-save | tee /etc/iptables/rules.v4

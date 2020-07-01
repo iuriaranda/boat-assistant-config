@@ -1,0 +1,32 @@
+---
+- name: Setup kiosk mode
+  hosts: pi
+  remote_user: pi
+  become: yes
+  tasks:
+    - name: Install apt dependencies
+      apt:
+        install_recommends: no
+        pkg:
+          - xserver-xorg
+          - x11-xserver-utils
+          - xinit
+          - openbox
+          - chromium-browser
+
+    - name: Copy openbox autostart configuration
+      copy:
+        src: ./files/etc/xdg/openbox/autostart
+        dest: /etc/xdg/openbox/autostart
+        owner: root
+        group: root
+
+    - name: Startx on boot
+      lineinfile:
+        dest: /home/pi/.bash_profile
+        line: "[[ -z $DISPLAY && $XDG_VTNR -eq 1 ]] && startx -- -nocursor"
+        create: yes
+
+      #B1 cli, B2 cli autologin, B3 desktop, B4 desktop autologin
+    - name: Autologin on boot
+      shell: "raspi-config nonint do_boot_behaviour B2"
