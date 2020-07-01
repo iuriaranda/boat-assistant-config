@@ -10,6 +10,7 @@ ha_display_off
 
 # Folders
 custom_components/hacs/
+custom_components/*/__pycache__/
 deps/
 downloads/
 glances/
