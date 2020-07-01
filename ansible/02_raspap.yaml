@@ -189,10 +189,16 @@
         group: www-data
 
     - name: Enable adblock
-      replace:
+      lineinfile:
         path: /var/www/html/includes/config.php
-        regexp: ('RASPI_ADBLOCK_ENABLED',\s)false
-        replace: \1true
+        regexp: RASPI_ADBLOCK_ENABLED
+        line: define('RASPI_ADBLOCK_ENABLED', true);
+
+    - name: Setup wlan1 as wifi client
+      lineinfile:
+        path: /var/www/html/includes/config.php
+        regexp: RASPI_WIFI_CLIENT_INTERFACE
+        line: define('RASPI_WIFI_CLIENT_INTERFACE', 'wlan1');
 
     - name: Setup RaspAP systemd file
       copy:
