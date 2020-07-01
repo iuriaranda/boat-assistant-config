@@ -7,7 +7,7 @@
 *.sh
 
 # Folders
-custom_components/
+custom_components/hacs/
 deps/
 downloads/
 glances/
