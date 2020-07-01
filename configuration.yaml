@@ -2,7 +2,7 @@
 default_config:
 
 homeassistant:
-  internal_url: ceoulmara.local:8123
+  internal_url: http://ceoulmara.local:8123
 
 lovelace:
   mode: yaml
