@@ -46,6 +46,7 @@
         remote_src: yes
         src: /home/pi/.ssh/ha_display_off
         dest: /usr/share/hassio/homeassistant/
+        mode: 0600
 
     - name: Add HA SSH key
       authorized_key:
