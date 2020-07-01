@@ -78,6 +78,7 @@ sensor:
   - platform: rpi_power
     text_state: true
   - platform: dummy_battery_draw
+  - platform: ball_valves
   - platform: command_line
     name: CPU Temperature
     command: "cat /sys/class/thermal/thermal_zone0/temp"

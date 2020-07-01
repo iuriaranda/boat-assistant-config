@@ -1,0 +1,10 @@
+{
+  "domain": "ball_valves",
+  "name": "Ball valves positions",
+  "documentation": "https://github.com/iuriaranda/boat-assistant-config/tree/master/custom_components/ball_valves/",
+  "dependencies": [],
+  "codeowners": [],
+  "requirements": [
+    "gpiozero"
+  ]
+}
