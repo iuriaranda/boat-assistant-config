@@ -27,17 +27,15 @@
         regexp: "^server.bind"
         line: server.bind = "172.30.32.1"
 
-    # TODO: figure out boot dependencies for this to work properly
-    # - name: Bind lighttpd to AP network
-    #   lineinfile:
-    #     path: /etc/lighttpd/lighttpd.conf
-    #     regexp: "^server.bind"
-    #     line: $SERVER["socket"] == "192.168.50.1:80" {}
+    - name: Bind lighttpd to AP network
+      lineinfile:
+        path: /etc/lighttpd/lighttpd.conf
+        line: $SERVER["socket"] == "192.168.50.1:80" {}
 
-    - name: Start lighttpd after hassio-supervisor
+    - name: Start lighttpd after hassio-supervisor and hostapd
       lineinfile:
         path: /lib/systemd/system/lighttpd.service
-        line: After=hassio-supervisor.service
+        line: After=hassio-supervisor.service hostapd.service
         insertafter: '^\[Unit\]$'
       notify:
         - systemd daemon reload
