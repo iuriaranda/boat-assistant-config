@@ -6,6 +6,8 @@
 # Scripts
 *.sh
 
+ha_display_off
+
 # Folders
 custom_components/hacs/
 deps/
